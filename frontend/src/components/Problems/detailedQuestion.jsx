@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Editor from '../Editor/Editor'; 
-import { useNavigate } from 'react-router-dom';
 import CompileWindow from '../CompileWindow/CompileWindow'; 
 import "./QuestionDetail.css";
-
 
 const QuestionDetail = () => {
   const { questionId } = useParams();
@@ -13,17 +11,27 @@ const QuestionDetail = () => {
   const [isCompileWindowVisible, setCompileWindowVisible] = useState(false);
   const [compileOutput, setCompileOutput] = useState('');
   const [compileError, setCompileError] = useState('');
-  let isDragging = false; // Variable to track drag state
+  let isDragging = true; // Variable to track drag state
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:5002/api/questions/${questionId}`)
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      navigate('/signin', { state: { from: `/questions/${questionId}` } });
+      return;
+    }
+
+    fetch(`http://localhost:5002/api/questions/${questionId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then((response) => response.json())
       .then((data) => {
         setQuestion(data.question); // Update question state
       })
       .catch((error) => console.error("Error fetching question:", error));
-  }, [questionId]);
+  }, [questionId, navigate]);
 
   const handleDragStart = (e) => {
     isDragging = true;
@@ -49,7 +57,7 @@ const QuestionDetail = () => {
   };
 
   if (!question) {
-    return navigate('/signin');
+    return null;
   }
 
   return (

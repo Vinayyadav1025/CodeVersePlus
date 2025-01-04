@@ -5,6 +5,7 @@ export const protect = (req, res, next) => {
   const authHeader = req.headers.authorization;
   console.log("authHeader:", authHeader);
   
+  
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: 'Authorization header missing or invalid' });
   }

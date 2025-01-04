@@ -12,6 +12,6 @@ router.post('/add', addQuestion);
 router.get('/', getQuestions);
 
 // Route to get a specific question by ID
-router.get('/:id', protect, getQuestionById);
+router.get('/:id', getQuestionById);
 
 export default router;  // Export the router

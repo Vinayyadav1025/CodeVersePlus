@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function SignInForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [state, setState] = useState({
     email: "",
     password: "",
@@ -11,12 +12,12 @@ function SignInForm() {
 
   useEffect(() => {
     // Check if the user is already logged in by looking for the JWT token
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     if (token) {
       // If a token exists, navigate to another page (e.g., dashboard or home page)
-      navigate("/problems");
+      navigate(location.state?.from || "/problems");
     }
-  }, [navigate]);
+  }, [navigate, location.state]);
 
   const handleChange = (evt) => {
     const value = evt.target.value;
@@ -48,8 +49,9 @@ function SignInForm() {
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
   
-          // Redirect the user to the dashboard or home page
-          navigate("/problems");
+          // Redirect the user to the original page or dashboard/home page
+          const redirectTo = location.state?.from || "/problems";
+          navigate(redirectTo);
         } else {
           console.log("SignIn failed. Please try again.");
         }
