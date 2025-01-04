@@ -1,28 +1,67 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { useNavigate } from 'react-router-dom';
+
 function SignInForm() {
-  const [state, setState] = React.useState({
+  const navigate = useNavigate();
+  const [state, setState] = useState({
     email: "",
-    password: ""
+    password: "",
   });
+
+  useEffect(() => {
+    // Check if the user is already logged in by looking for the JWT token
+    const token = localStorage.getItem("token");
+    if (token) {
+      // If a token exists, navigate to another page (e.g., dashboard or home page)
+      navigate("/problems");
+    }
+  }, [navigate]);
 
   const handleChange = (evt) => {
     const value = evt.target.value;
     setState({
       ...state,
-      [evt.target.name]: value
+      [evt.target.name]: value,
     });
   };
 
   const handleOnSubmit = (evt) => {
     evt.preventDefault();
-
+  
     const { email, password } = state;
-    alert(`You are logged in with email: ${email} and password: ${password}`);
-
+    const data = { email, password };
+  
+    fetch("http://localhost:5001/api/auth/signin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.error) {
+          console.log("SignIn Success:", data);
+  
+          // Store tokens securely
+          localStorage.setItem("accessToken", data.accessToken);
+          localStorage.setItem("refreshToken", data.refreshToken);
+  
+          // Redirect the user to the dashboard or home page
+          navigate("/problems");
+        } else {
+          console.log("SignIn failed. Please try again.");
+        }
+      })
+      .catch((error) => {
+        console.error("SignIn Error:", error);
+      });
+  
+    // Clear form fields after submission
     setState({ email: "", password: "" });
   };
-
+  
   return (
     <div className="form-container sign-in-container">
       <form onSubmit={handleOnSubmit} className="sign-in-form">

@@ -50,7 +50,7 @@ export const verifyOTP = async (req, res) => {
         user.otp = null;
         user.otpExpiration = null;
         await user.save();
-
+        
         res.status(200).json({ message: 'Email verified successfully' });
     } catch (err) {
         res.status(500).json({ message: 'Error verifying OTP', error: err.message });
@@ -69,7 +69,8 @@ export const signin = async (req, res) => {
 
         const accessToken = createToken(user);
         const refreshToken = createRefreshToken(user);
-
+        console.log("Signed in successfully");
+        
         res.status(200).json({ accessToken, refreshToken });
     } catch (err) {
         res.status(500).json({ message: 'Error signing in user', error: err.message });

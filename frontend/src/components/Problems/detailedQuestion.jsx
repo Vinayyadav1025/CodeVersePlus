@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Editor from '../Editor/Editor'; 
+import { useNavigate } from 'react-router-dom';
 import CompileWindow from '../CompileWindow/CompileWindow'; 
 import "./QuestionDetail.css";
+
 
 const QuestionDetail = () => {
   const { questionId } = useParams();
@@ -12,6 +14,7 @@ const QuestionDetail = () => {
   const [compileOutput, setCompileOutput] = useState('');
   const [compileError, setCompileError] = useState('');
   let isDragging = false; // Variable to track drag state
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`http://localhost:5002/api/questions/${questionId}`)
@@ -46,7 +49,7 @@ const QuestionDetail = () => {
   };
 
   if (!question) {
-    return <div className="loading">Loading...</div>;
+    return navigate('/signin');
   }
 
   return (

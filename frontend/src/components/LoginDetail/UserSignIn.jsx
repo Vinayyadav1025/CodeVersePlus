@@ -6,7 +6,7 @@ import SignUpForm from "./SignUp";
 
 
 export default function UserSignIn() {
-  const [type, setType] = useState("signIn");
+  const [type, setType] = useState("signUp");
   const handleOnClick = (text) => {
     if (text !== type) {
       setType(text);
