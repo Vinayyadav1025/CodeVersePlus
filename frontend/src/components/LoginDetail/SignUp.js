@@ -37,11 +37,10 @@ function SignUpForm() {
       collegeName: "",
       course: "",
       password,
-      profileImage: "",
     };
 
     // Signup API call
-    fetch("http://localhost:5001/api/auth/signup", {
+    fetch("http://localhost:5001/api/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

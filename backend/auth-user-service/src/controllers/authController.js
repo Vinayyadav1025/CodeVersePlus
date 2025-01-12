@@ -1,144 +1,247 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/user.js';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
+import { ApiResponse } from '../utils/ApiResponse.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiError } from '../utils/ApiError.js';
 import { sendOTP } from '../services/emailService.js';
 import { generateOTP } from '../utils/generateOTP.js';
-import { createToken, createRefreshToken } from '../services/authService.js';
+import { createAccessToken, createRefreshToken } from '../services/authService.js';
 
-export const signup = async (req, res) => {
+
+// Helper function for rate limiting OTP requests
+const rateLimitOtpRequest = async (email) => {
+    const user = await User.findOne({ email });
+    if (user) {
+        const currentTime = Date.now();
+        if (user.otpRequestCount >= 3 && currentTime < user.lastOtpRequestTime + 3600000) {
+            throw new ApiError(429, 'Too many OTP requests. Please try again later.');
+        }
+        user.otpRequestCount = (user.otpRequestCount || 0) + 1;
+        user.lastOtpRequestTime = currentTime;
+        await user.save();
+    }
+};
+
+// Register user
+export const signup = asyncHandler(async (req, res) => {
     const { email, username, fullName, collegeName, course, password } = req.body;
-    try {
-        const userExists = await User.findOne({ $or: [{ email }, { username }] });
-        if (userExists) return res.status(400).json({ message: 'Email or Username already exists' });
 
-        const otp = generateOTP();
-        console.log('OTP:', otp);
-
-        const hashedPassword = await bcrypt.hash(password, 12);
-        console.log('Hashed password');
-
-        const user = new User({
-            email,
-            username,
-            fullName,
-            collegeName,
-            course,
-            password: hashedPassword,
-            otp,
-            otpExpiration: Date.now() + 3600000, // OTP expires in 1 hour
-        });
-
-        await user.save();
-
-        await sendOTP(user.email, otp);
-
-        res.status(201).json({ message: 'Signup successful. Please verify your OTP.' });
-    } catch (err) {
-        res.status(500).json({ message: 'Error signing up user', error: err.message });
+    if ([email, fullName, password].some((field) => field.trim() === "")) {
+        throw new ApiError(400, 'All fields are required');
     }
-};
 
-export const verifyOTP = async (req, res) => {
+    const userExists = await User.findOne({ $or: [{ email }, { username }] });
+    if (userExists) throw new ApiError(400, 'User already exists');
+
+    const otp = generateOTP().toString();
+    console.log('OTP:', otp);
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const user = new User({
+        email,
+        username,
+        fullName,
+        collegeName,
+        course,
+        password: hashedPassword,
+        otp: crypto.createHash('sha256').update(otp).digest('hex'), // Hash OTP before saving
+        otpExpiration: Date.now() + 3600000, // OTP expires in 1 hour
+        otpRequestCount: 1,
+        lastOtpRequestTime: Date.now()
+    });
+
+    await rateLimitOtpRequest(email); // Rate limiting OTP requests
+
+    await user.save();
+    await sendOTP(user.email, otp);
+
+    return res.status(201).json(
+        new ApiResponse(200, user, "User created successfully")
+    );
+});
+
+// Verify OTP
+export const verifyOTP = asyncHandler( async (req, res) => {
     const { email, otp } = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (!user) return res.status(404).json({ message: 'User not found' });
 
-        if (user.otp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
-        if (user.otpExpiration < Date.now()) return res.status(400).json({ message: 'OTP expired' });
-
-        user.otp = null;
-        user.otpExpiration = null;
-        await user.save();
-        
-        res.status(200).json({ message: 'Email verified successfully' });
-    } catch (err) {
-        res.status(500).json({ message: 'Error verifying OTP', error: err.message });
+    if (!email || !otp) {
+        throw new ApiError(400, 'Email and OTP are required');
     }
-};
 
+    const user = await User.findOne({ email });
+    if (!user) throw new ApiError(400, 'User not found');
 
-export const signin = async (req, res) => {
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    if (hashedOtp !== user.otp) throw new ApiError(400, 'Invalid OTP');
+    if (user.otpExpiration < Date.now()) throw new ApiError(400, 'OTP expired');
+
+    user.otp = null;
+    user.otpExpiration = null;
+    user.isVerified = true;  // Mark user as verified
+    await user.save();
+
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Email verified successfully")
+    );
+});
+
+// Sign in user
+export const signin = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (!user) return res.status(404).json({ message: 'User not found' });
 
-        const isPasswordCorrect = await bcrypt.compare(password, user.password);
-        if (!isPasswordCorrect) return res.status(400).json({ message: 'Incorrect password' });
-
-        const accessToken = createToken(user);
-        const refreshToken = createRefreshToken(user);
-        console.log("Signed in successfully");
-        
-        res.status(200).json({ accessToken, refreshToken });
-    } catch (err) {
-        res.status(500).json({ message: 'Error signing in user', error: err.message });
+    if (!email || !password) {
+        throw new ApiError(400, 'Email and Password are required');
     }
-};
+
+    const user = await User.findOne({ email });
+    if (!user) throw new ApiError(400, 'User not found');
+    
+    if (!user.isVerified) {
+        throw new ApiError(400, 'Please verify your email before logging in');
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) throw new ApiError(400, 'Invalid user credentials');
+
+    const accessToken = createAccessToken(user);
+    const refreshToken = createRefreshToken(user);
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    const loggedInUser = await User.findById(user._id).select
+    ('-otp -otpExpiration -isVerified -otpRequestCount -lastOtpRequestTime -password -refreshToken');
+
+    const options = { httpOnly: true, secure: false, sameSite: 'Strict' };
+
+    return res.status(200)
+        .cookie('accessToken', accessToken, options)
+        .cookie('refreshToken', refreshToken, options)
+        .json(new ApiResponse(200, { user: loggedInUser, accessToken }, 'Signed in successfully'));
+});
+
+// Logout user
+export const logout = asyncHandler(async (req, res) => {
+    if (!req.user) {
+        throw new ApiError(401,{}, 'Unauthorized request');
+    }
+
+    await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } });
+
+    const options = { httpOnly: true, secure: false, sameSite: 'Strict' };
+
+    return res.status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "User logged out successfully"));
+});
+
+
+// Refresh Token
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+
+    if (!incomingRefreshToken) {
+        throw new ApiError(401, "Unauthorized request: No refresh token provided");
+    }
+
+    try {
+        // Verify the incoming refresh token
+        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+        // Fetch the user and validate the refresh token
+        const user = await User.findById(decodedToken.id);
+        if (!user || incomingRefreshToken !== user.refreshToken) {
+            throw new ApiError(401, "Refresh token is invalid or expired");
+        }
+
+        // Create new tokens
+        const accessToken = createAccessToken(user);
+        const refreshToken = createRefreshToken(user);
+
+        // Update the user's refresh token
+        user.refreshToken = refreshToken;
+        await user.save();
+
+        // Set secure cookie options
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Secure in production
+            sameSite: 'Strict',
+        };
+
+        // Respond with new tokens
+        return res.status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(new ApiResponse(200, { accessToken, refreshToken }, "Access token refreshed"));
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            throw new ApiError(401, "Refresh token has expired");
+        } else if (error.name === 'JsonWebTokenError') {
+            throw new ApiError(401, "Invalid refresh token");
+        } else {
+            throw new ApiError(500, error?.message || "Internal Server Error");
+        }
+    }
+});
+
 
 // Forgot Password
-export const forgotPassword = async (req, res) => {
+export const forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Generate reset token and hash it
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-
-        // Store the hashed reset token and its expiry time
-        user.resetToken = hashedResetToken;
-        user.resetTokenExpire = Date.now() + 10 * 60 * 1000; // 10 minutes expiry
-
-        console.log('Generated Reset Token:', resetToken);
-        console.log('Hashed Reset Token:', hashedResetToken);
-        console.log('Reset Token Expiry:', user.resetTokenExpire);
-
-        await user.save();
-
-        res.json({ message: 'Password reset token sent', token: resetToken });
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ message: error.message });
+    
+    
+    // Check if the email exists in the database
+    const user = await User.findOne({ email });
+    
+    
+    if (!user) {
+        throw new ApiError(404, 'User not found');
     }
-};
 
+    // Generate a random reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
 
-// Reset Password
-export const resetPassword = async (req, res) => {
-    const { token, password } = req.body;
+    // Hash the token before saving it to the database
+    const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Save the hashed token and expiry time in the database
+    user.resetToken = hashedResetToken;
+    user.resetTokenExpire = Date.now() + 10 * 60 * 1000; // Token expires in 10 minutes
+    await user.save({ validateBeforeSave: false });
+
+    // Construct the reset URL
+    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/auth/reset-password/${resetToken}`;
+
+    // Email content
+    const message = `
+        You are receiving this email because you (or someone else) have requested a password reset.
+        Please use the following link to reset your password:
+        ${resetUrl}
+        If you did not request this, please ignore this email.
+    `;
+
     try {
-        // Hash the incoming token to compare with the stored hashed token
-        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-        console.log('Hashed Token:', hashedToken);
-
-        const user = await User.findOne({
-            resetToken: hashedToken,
-            resetTokenExpire: { $gt: Date.now() } // Ensure the token hasn't expired
+        // Send the email
+        await sendEmail({
+            to: user.email,
+            subject: 'Password Reset Request',
+            text: message,
         });
 
-        if (!user) {
-            console.log('No user found with the token or token expired');
-            return res.status(400).json({ message: 'Invalid or expired token' });
-        }
-
-        // Hash the new password before saving it
-        const hashedPassword = await bcrypt.hash(password, 12);
-        user.password = hashedPassword;
-
-        // Clear reset token and expiry
+        // Respond to the client
+        return res.status(200).json(
+            new ApiResponse(200, {}, 'Reset token sent to email')
+        );
+    } catch (error) {
+        // Remove resetToken fields if email fails
         user.resetToken = undefined;
         user.resetTokenExpire = undefined;
+        await user.save({ validateBeforeSave: false });
 
-        await user.save();
-
-        res.json({ message: 'Password reset successful' });
-    } catch (error) {
-        console.log('Error:', error);
-        res.status(500).json({ message: error.message });
+        throw new ApiError(500, 'There was an error sending the email. Try again later.');
     }
-};
+});

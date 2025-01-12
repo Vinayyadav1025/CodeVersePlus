@@ -16,7 +16,7 @@ export default function UserSignIn() {
   const containerClass =
     "container " + (type === "signUp"  ? "right-panel-active" : "");
   return (
-    <div className="App">
+    <div className="signin-container">
       <div className={containerClass} id="container">
         <SignUpForm />
         <SignInForm />

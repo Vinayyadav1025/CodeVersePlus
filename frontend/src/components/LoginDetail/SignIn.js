@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -10,15 +10,6 @@ function SignInForm() {
     password: "",
   });
 
-  useEffect(() => {
-    // Check if the user is already logged in by looking for the JWT token
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      // If a token exists, navigate to another page (e.g., dashboard or home page)
-      navigate(location.state?.from || "/problems");
-    }
-  }, [navigate, location.state]);
-
   const handleChange = (evt) => {
     const value = evt.target.value;
     setState({
@@ -29,11 +20,11 @@ function SignInForm() {
 
   const handleOnSubmit = (evt) => {
     evt.preventDefault();
-  
+
     const { email, password } = state;
     const data = { email, password };
-  
-    fetch("http://localhost:5001/api/auth/signin", {
+
+    fetch("http://localhost:5001/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,14 +35,17 @@ function SignInForm() {
       .then((data) => {
         if (!data.error) {
           console.log("SignIn Success:", data);
-  
-          // Store tokens securely
+
+          // Store tokens in localStorage after successful login
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
-  
+
           // Redirect the user to the original page or dashboard/home page
-          const redirectTo = location.state?.from || "/problems";
+          const redirectTo = location.state?.from || "/";
           navigate(redirectTo);
+
+          // Trigger the navbar state change (so it knows the user is logged in)
+          window.location.reload(); // Forces a re-render of the Navbar
         } else {
           console.log("SignIn failed. Please try again.");
         }
@@ -59,11 +53,11 @@ function SignInForm() {
       .catch((error) => {
         console.error("SignIn Error:", error);
       });
-  
+
     // Clear form fields after submission
     setState({ email: "", password: "" });
   };
-  
+
   return (
     <div className="form-container sign-in-container">
       <form onSubmit={handleOnSubmit} className="sign-in-form">

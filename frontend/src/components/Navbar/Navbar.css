@@ -1,23 +1,138 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 .navbar {
   width: 100%;
+  height: 3rem;
+  padding: 0.5rem 0rem;
   display: flex;
   justify-content: center;
+  align-items:center;
+  background-color: #000;
+  color: white;  
+}
+.navbar-logo {
+  width: 150px; /* Adjust the width as per your image */
+  height: auto;
+}
+
+
+.navbar-container{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 0px 20px;
-  background-color: #282c34;
-  color: white; 
-  gap: 30rem;  
 }
 
   
-  .nav-links {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-  }
+.navbar h3{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 5rem;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  list-style: none;
+  gap: 5rem;
+  padding-right: 2rem;
+}
   
   .nav-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: white;
     text-decoration: none;
+  }
+  .nav-links > li > a:hover { /* Apply hover effect only to nav-links' direct children */
+    transform: scale(1.2); /* Use transform for better scaling */
+  }
+  
+
+  .dropdown-button {
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .placeholder-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: gray;
+  }
+  
+  .dropdown-container {
+    position: relative;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 3rem;
+    right: 0;
+    width: 10rem;
+    background-color: rgb(99, 94, 94);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    border: 1px solid gray;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    color: white;
+  }
+  
+
+
+  .dropdown-menu a {
+    text-decoration: none;
+    padding: 5px 0;
+    color: black;
+    cursor: pointer;
+    font-size: 1.5rem;
+    
+  }
+  .dropdown-menu li{
+    text-decoration: none;
+    padding: 5px 0;
+    color: black;
+    cursor: pointer;
+    text-align: center;
+    font-size: 1.5rem;
+  }
+  
+  .dropdown-menu a:hover,
+  .dropdown-menu li:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Makes the image circular */
+    object-fit: cover; /* Ensures the image covers the circle properly */
+  }
+  
+  .placeholder-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Circular shape */
+    background-color: gray; /* Placeholder color */
+    display: inline-block;
   }
   

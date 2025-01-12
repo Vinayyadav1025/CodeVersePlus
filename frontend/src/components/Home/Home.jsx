@@ -6,7 +6,8 @@ const Home = () => {
     <div className="home">
       <h1>Welcome to CodeEditor</h1>
       <p>Your platform for coding challenges and practice.</p>
-    </div>
+      
+      </div>
   );
 };
 
