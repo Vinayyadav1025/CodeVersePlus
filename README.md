@@ -7,7 +7,7 @@ It is a competitive programming platform like- leetcode, GeeksforGeeks etc.
 - **Real-time Output**: Instantly see the results of your code execution.
 - **Syntax Highlighting**: Enhanced code readability with color-coded syntax.
 - **User-friendly Interface**: Intuitive design for seamless coding experience.
-- **Code run environment**: Uaing docker, we are running the code that provide scalibility to run the code.
+- **Code run environment**: Using docker, we are running the code that provide scalibility to run the code.
 
 ## Installation:
 
