@@ -8,24 +8,46 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "classnames": "^2.5.1",
     "lottie-react": "^2.4.0",
     "mdb-react-ui-kit": "^9.0.0",
     "monaco-editor": "^0.52.0",
+    "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-ga4": "^2.1.0",
     "react-loader-spinner": "^6.1.6",
     "react-monaco-editor": "^0.56.2",
     "react-otp-input": "^3.1.1",
     "react-router-dom": "^7.0.1",
     "react-scripts": "5.0.1",
     "react-split": "^2.0.14",
-    "web-vitals": "^2.1.4"
+    "sass": "^1.83.4",
+    "web-vitals": "^2.1.4",
+    "next": "^14.1.0",
+    "next-themes": "^0.2.1",
+    "react-modal-video": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.9",
+    "@types/react": "^18.2.33",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.7.3",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "next dev",
+    "start-next": "next start",
+    "lint": "next lint"
   },
   "eslintConfig": {
     "extends": [

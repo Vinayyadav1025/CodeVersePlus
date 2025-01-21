@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import "./Navbar.css";
 
 const Navbar = () => {
-  const logo = require('../../Assets/logo.png');
+  const logo = require('../../assets/logo.png');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profileImage, setProfileImage] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
