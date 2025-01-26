@@ -7,6 +7,7 @@ export const authenticateToken = asyncHandler(async (req, _, next) => {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")// Access token from frontend and set empty string for logout
         
         
+        
         if(!token){
             throw new ApiError(401, "Unauthoized request")
         }

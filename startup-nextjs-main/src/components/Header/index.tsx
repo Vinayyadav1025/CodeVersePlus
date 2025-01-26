@@ -1,14 +1,36 @@
 "use client";
 import Image from "next/image";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import ThemeToggler from "./ThemeToggler";
 import menuData from "./menuData";
+import { useRouter } from "next/navigation"; // Updated import
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 
 const Header = () => {
   // Navbar toggle
   const [navbarOpen, setNavbarOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profileImage, setProfileImage] = useState('');
+  const [dropdownOpen, ] = useState(false);
+  const [accessToken, setAccessToken] = useState(null);
+  
+  const router = useRouter(); // Correctly initialized router
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    setAccessToken(token);
+    setIsLoggedIn(true);  // Update logged in state based on token
+    if (token) {
+      // Fetch the profile image from localStorage or an API
+      const savedProfileImage = localStorage.getItem('profileImage');
+      setProfileImage(savedProfileImage || ''); // Use default or saved profile image
+    }
+  }, []);
+
+
   const navbarToggleHandler = () => {
     setNavbarOpen(!navbarOpen);
   };
@@ -22,11 +44,15 @@ const Header = () => {
       setSticky(false);
     }
   };
+
   useEffect(() => {
     window.addEventListener("scroll", handleStickyNavbar);
-  });
+    return () => {
+      window.removeEventListener("scroll", handleStickyNavbar);
+    };
+  }, []);
 
-  // submenu handler
+  // Submenu handler
   const [openIndex, setOpenIndex] = useState(-1);
   const handleSubmenu = (index) => {
     if (openIndex === index) {
@@ -37,7 +63,64 @@ const Header = () => {
   };
 
   const usePathName = usePathname();
+  
 
+  const handleLogout = async () => {
+    
+    
+    
+  
+    try {
+      // Assuming accessToken is stored in localStorage or sessionStorage
+      // If there's no accessToken, we don't need to proceed with logout
+      if (!accessToken) {
+        console.log('No access token found, skipping logout');
+        return;
+      }
+  
+      
+  
+      const response = await fetch('http://localhost:5001/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add the necessary authentication header (Bearer token)
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        credentials: 'include', // For including cookies if necessary
+      });
+  
+      // Check if the response is successful
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+  
+      // Remove data from localStorage
+      // Clear the localStorage and state on successful logout
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('profileImage');
+      setAccessToken(null);
+      setProfileImage('');
+      setIsLoggedIn(false);
+  
+      
+  
+      // Redirect to the sign-in page
+      router.push("/signin");
+  
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Handle any errors that occur during the logout process
+    }
+  };
+  
+  const toggleDropdown = () => {
+    ((prev) => !prev);
+  };
+
+  const closeDropdown = () => {
+    (false);
+  };
   return (
     <>
       <header
@@ -105,8 +188,9 @@ const Header = () => {
                   }`}
                 >
                   <ul className="block lg:flex lg:space-x-12">
-                    {menuData.map((menuItem, index) => (
-                      <li key={index} className="group relative">
+                    {menuData.map((menuItem) => (
+                      
+                      <li key={menuItem.id} className="group relative">
                         {menuItem.path ? (
                           <Link
                             href={menuItem.path}
@@ -121,7 +205,7 @@ const Header = () => {
                         ) : (
                           <>
                             <p
-                              onClick={() => handleSubmenu(index)}
+                              onClick={() => handleSubmenu(menuItem.id)}
                               className="flex cursor-pointer items-center justify-between py-2 text-base text-dark group-hover:text-primary dark:text-white/70 dark:group-hover:text-white lg:mr-0 lg:inline-flex lg:px-0 lg:py-6"
                             >
                               {menuItem.title}
@@ -138,13 +222,13 @@ const Header = () => {
                             </p>
                             <div
                               className={`submenu relative left-0 top-full rounded-sm bg-white transition-[top] duration-300 group-hover:opacity-100 dark:bg-dark lg:invisible lg:absolute lg:top-[110%] lg:block lg:w-[250px] lg:p-4 lg:opacity-0 lg:shadow-lg lg:group-hover:visible lg:group-hover:top-full ${
-                                openIndex === index ? "block" : "hidden"
+                                openIndex === menuItem.id ? "block" : "hidden"
                               }`}
                             >
-                              {menuItem.submenu.map((submenuItem, index) => (
+                              {menuItem.submenu.map((submenuItem) => (
                                 <Link
                                   href={submenuItem.path}
-                                  key={index}
+                                  key={submenuItem.id}
                                   className="block rounded py-2.5 text-sm text-dark hover:text-primary dark:text-white/70 dark:hover:text-white lg:px-3"
                                 >
                                   {submenuItem.title}
@@ -158,22 +242,70 @@ const Header = () => {
                   </ul>
                 </nav>
               </div>
-              <div className="flex items-center justify-end pr-16 lg:pr-0">
-                <Link
-                  href="/signin"
-                  className="hidden px-7 py-3 text-base font-medium text-dark hover:opacity-70 dark:text-white md:block"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/signup"
-                  className="ease-in-up shadow-btn hover:shadow-btn-hover hidden rounded-sm bg-primary px-8 py-3 text-base font-medium text-white transition duration-300 hover:bg-opacity-90 md:block md:px-9 lg:px-6 xl:px-9"
-                >
-                  Sign Up
-                </Link>
+              <div className="flex items-center justify-end pr-16 lg:pr-0 mr-20 h-full ">
                 <div>
                   <ThemeToggler />
                 </div>
+                <div className="flex items-center justify-between">
+                  {isLoggedIn  ? (
+                    <Link
+                      href="/signin"
+                      className="px-7 py-3 text-base font-medium text-dark hover:opacity-70 dark:text-white md:block"
+                    >
+                      Sign In
+                    </Link>
+                  ) : (
+                    <div className="relative group">
+                      {/* Profile Image or Human Icon */}
+                      {profileImage ? (
+                        <Image
+                          src={profileImage}
+                          alt="Profile"
+                          width={40}
+                          height={40}
+                          className=" rounded-full bg-white transition-opacity duration-300 opacity-100"
+                        />
+                      ) : (
+                        <div className=" h-10 w-10 rounded-full bg-gray-300 flex justify-center items-center">
+                          {/* Human Icon (FontAwesome) */}
+                          <FontAwesomeIcon
+                            icon={faUser}
+                            className="text-dark h-6 w-6"
+                          />
+                        </div>
+                      )}
+
+                      {/* Dropdown Menu */}
+                      <div className="">
+
+                      <div className="dark:bg-gray-800
+                       absolute left-0 top-full mt-1 w-48 shadow-lg rounded-lg opacity-0 group-hover:opacity-100 group-hover:visible transition-opacity duration-200 invisible"
+                       >
+                        <Link
+                          href="/profile"
+                          className="block rounded py-2.5 text-sm text-dark hover:text-primary dark:text-white/50 dark:hover:text-white lg:px-3"
+                        >
+                          View Profile
+                        </Link>
+                        <button
+                          onClick={() => {
+                            handleLogout();
+                          }}
+                          className="block w-full rounded py-2.5 text-sm text-left text-dark hover:text-primary dark:text-white/70 dark:hover:text-white lg:px-3"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                      </div>
+                    </div>
+
+                  )}
+                </div>
+
+
+
+                
+                
               </div>
             </div>
           </div>

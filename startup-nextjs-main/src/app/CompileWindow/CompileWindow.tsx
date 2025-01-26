@@ -28,8 +28,8 @@ const CompileWindow: React.FC<CompileWindowProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-gray-800 rounded-lg p-5 shadow-xl w-11/12 max-w-4xl h-4/5 max-h-[90vh] overflow-auto relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 ">
+      <div className="mt-20px bg-gray-800 rounded-lg p-5 shadow-xl w-11/12 max-w-4xl h-4/5 max-h-[100vh] overflow-auto relative">
         <div className="flex justify-between items-center border-b pb-2 mb-2">
           <span className="text-white text-lg font-bold">Compilation Output</span>
           <button
@@ -40,7 +40,7 @@ const CompileWindow: React.FC<CompileWindowProps> = ({
           </button>
         </div>
 
-        <div className="flex flex-col gap-4 overflow-auto h-[calc(100%-77px)]">
+        <div className="flex flex-col gap-4  h-[calc(100%-77px)]">
           {/* Custom Input Section */}
           {isCustomInputVisible && (
             <div className="flex flex-col gap-2">

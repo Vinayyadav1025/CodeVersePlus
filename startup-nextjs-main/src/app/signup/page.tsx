@@ -1,18 +1,166 @@
+"use client"; // Add this line
+
 import Link from "next/link";
+import React, {useState} from "react";
+import {  useRouter } from "next/navigation"; // Import necessary hooks
+import OtpInput from "react-otp-input";
+import { ClipLoader, PulseLoader} from "react-spinners";
 
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Sign Up Page | Free Next.js Template for Startup and SaaS",
-  description: "This is Sign Up Page for Startup Nextjs Template",
-  // other metadata
-};
 
 const SignupPage = () => {
+  const router = useRouter();
+
+  const [state, setState] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [isOtpSent, setIsOtpSent] = useState(false); // Tracks OTP sent status
+  const [otp, setOtp] = useState("");
+  const [otpEmail, setOtpEmail] = useState(""); // Stores email for OTP verification
+  const [errorMessage, setErrorMessage] = useState(""); // Error message state
+  const [isLoading, setIsLoading] = useState(false); // Loading state
+
+  const handleChange = (evt) => {
+    const value = evt.target.value;
+    setState({
+      ...state,
+      [evt.target.name]: value,
+    });
+  };
+
+  const handleOnSubmit = (evt) => {
+    evt.preventDefault();
+    setIsLoading(true); // Show loader
+
+    const { name, email, password } = state;
+
+    const data = {
+      email,
+      username: email.split("@")[0],
+      fullName: name,
+      collegeName: "",
+      course: "",
+      password,
+    };
+
+    // Signup API call
+    fetch("http://localhost:5001/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setIsLoading(false); // Hide loader
+        console.log("SignUp Data:", data);
+        
+        if (!data.error) {
+          console.log("SignUp Success:", data);
+          setIsOtpSent(true); // Show OTP form
+          setOtpEmail(email); // Save email for OTP verification
+        } else {
+          setErrorMessage(data.message || "SignUp failed. Please try again.");
+        }
+      })
+      .catch((error) => {
+        setIsLoading(false); // Hide loader
+        console.error("SignUp Error:", error);
+        setErrorMessage("An error occurred during SignUp. Please try again.");
+      });
+
+    // setState({ name: "", email: "", password: "" }); // Reset form
+  };
+
+  const handleOtpSubmit = (evt) => {
+    evt.preventDefault();
+    setIsLoading(true); // Show loader
+
+    // OTP verification API call
+    fetch("http://localhost:5001/api/auth/verify-otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: otpEmail, otp }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setIsLoading(false); // Hide loader
+        if (!data.error) {
+          console.log("OTP verified successfully:", data);
+          alert("Account created successfully!");
+          //Automatic Sign in after account creation
+
+          const { email, password } = state;
+          const dataForSignin = { email, password };
+
+          fetch("http://localhost:5001/api/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataForSignin),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (!data.error) {
+                console.log("SignIn Success:", data);
+      
+                // Store tokens in localStorage after successful login
+                localStorage.setItem("accessToken", data.accessToken);
+                localStorage.setItem("refreshToken", data.refreshToken);
+      
+                // Redirect the user to the original page or dashboard/home page
+                // const redirectTo = searchParams.get("/") || "/";
+                // window.location.href = redirectTo; // Fallback to home page if 'from' is not available
+      
+                 const id = sessionStorage.getItem('redirect');
+                 sessionStorage.removeItem('redirect');
+                 if(id){
+                    
+                    router.push(`/detailed-question?id=${id}`); 
+                 }else{
+                    router.push(`/`); 
+                 }
+      
+                // Trigger the navbar state change (so it knows the user is logged in)
+                // window.location.reload(); // Forces a re-render of the Navbar
+              } else {
+                console.log("SignIn failed. Please try again.");
+              }
+            })
+            .catch((error) => {
+              console.error("SignIn Error:", error);
+            });
+      
+          setIsOtpSent(false); // Reset to SignUp form
+          setOtpEmail(""); // Clear email
+          setOtp(""); // Clear OTP
+        } else {
+          setErrorMessage(data.message || "OTP verification failed. Please try again.");
+        }
+      })
+      .catch((error) => {
+        setIsLoading(false); // Hide loader
+        console.error("OTP Verification Error:", error);
+        setErrorMessage("An error occurred during OTP verification. Please try again.");
+      });
+  };
+
   return (
     <>
       <section className="relative z-10 overflow-hidden pb-16 pt-36 md:pb-20 lg:pb-28 lg:pt-[180px]">
-        <div className="container">
+      {isLoading && (
+          <div className="absolute inset-0 flex justify-center items-center bg-opacity-50 bg-gray-500">
+            <PulseLoader color="#424fbe" />
+          </div>
+        )}
+
+        {!isOtpSent ? (
+          <div className="container">
           <div className="-mx-4 flex flex-wrap">
             <div className="w-full px-4">
               <div className="shadow-three mx-auto max-w-[500px] rounded bg-white px-6 py-10 dark:bg-dark sm:p-[60px]">
@@ -92,8 +240,11 @@ const SignupPage = () => {
                     <input
                       type="text"
                       name="name"
+                      value={state.name}
+                      onChange={handleChange}
                       placeholder="Enter your full name"
                       className="border-stroke dark:text-body-color-dark dark:shadow-two w-full rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:focus:border-primary dark:focus:shadow-none"
+                      required
                     />
                   </div>
                   <div className="mb-8">
@@ -102,11 +253,14 @@ const SignupPage = () => {
                       className="mb-3 block text-sm text-dark dark:text-white"
                     >
                       {" "}
-                      Work Email{" "}
+                      Email{" "}
                     </label>
                     <input
                       type="email"
                       name="email"
+                      value={state.email}
+                      onChange={handleChange}
+                      required
                       placeholder="Enter your Email"
                       className="border-stroke dark:text-body-color-dark dark:shadow-two w-full rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:focus:border-primary dark:focus:shadow-none"
                     />
@@ -122,6 +276,9 @@ const SignupPage = () => {
                     <input
                       type="password"
                       name="password"
+                      value={state.password}
+                      onChange={handleChange}
+                      required
                       placeholder="Enter your Password"
                       className="border-stroke dark:text-body-color-dark dark:shadow-two w-full rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:focus:border-primary dark:focus:shadow-none"
                     />
@@ -136,6 +293,7 @@ const SignupPage = () => {
                           type="checkbox"
                           id="checkboxLabel"
                           className="sr-only"
+                          required
                         />
                         <div className="box mr-4 mt-1 flex h-5 w-5 items-center justify-center rounded border border-body-color border-opacity-20 dark:border-white dark:border-opacity-10">
                           <span className="opacity-0">
@@ -171,7 +329,9 @@ const SignupPage = () => {
                     </label>
                   </div>
                   <div className="mb-6">
-                    <button className="shadow-submit dark:shadow-submit-dark flex w-full items-center justify-center rounded-sm bg-primary px-9 py-4 text-base font-medium text-white duration-300 hover:bg-primary/90">
+                    <button
+                      onClick={handleOnSubmit}
+                    className="shadow-submit dark:shadow-submit-dark flex w-full items-center justify-center rounded-sm bg-primary px-9 py-4 text-base font-medium text-white duration-300 hover:bg-primary/90">
                       Sign up
                     </button>
                   </div>
@@ -186,6 +346,54 @@ const SignupPage = () => {
             </div>
           </div>
         </div>
+        ):(
+          <div className="container mx-auto px-4">
+          <div className="-mx-4 flex flex-wrap justify-center">
+            <div className="w-full max-w-md px-4">
+              <div className="bg-white p-6 rounded-lg shadow-lg dark:bg-dark sm:p-8">
+                <h3 className="text-center text-2xl font-bold text-black dark:text-white sm:text-3xl mb-6">
+                  Verify OTP
+                </h3>
+                <p className="text-center text-base font-medium text-body-color mb-8">
+                  Please enter the OTP sent to {otpEmail}
+                </p>
+
+                {/* OTP Form */}
+                <form onSubmit={handleOtpSubmit}>
+                  <OtpInput
+                    value={otp}
+                    onChange={setOtp}
+                    numInputs={6}
+                    renderSeparator={<span>-</span>}
+                    renderInput={(props) => <input {...props} />}
+                    inputStyle={{
+                      width: '40px', // Set the width you want
+                      height: '50px',
+                      margin: '5px',
+                      borderRadius: '8px',
+                      border: '1px solid #ccc',
+                      fontSize: '20px',
+                      textAlign: 'center',
+                    }}
+                    />
+                  <div className="mt-6">
+                    <button
+                      type="submit"
+                      className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary-dark transition-all duration-300"
+                    >
+                      {isLoading ? "Verifying..." : "Verify OTP"}
+                    </button>
+                  </div>
+                </form>
+
+                {errorMessage && (
+                  <p className="mt-4 text-center text-sm text-red-500">{errorMessage}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        )}
         <div className="absolute left-0 top-0 z-[-1]">
           <svg
             width="1440"

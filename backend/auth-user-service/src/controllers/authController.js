@@ -124,10 +124,13 @@ export const signin = asyncHandler(async (req, res) => {
 
 // Logout user
 export const logout = asyncHandler(async (req, res) => {
+    
+    
     if (!req.user) {
         throw new ApiError(401,{}, 'Unauthorized request');
     }
-
+    
+    
     await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } });
 
     const options = { httpOnly: true, secure: false, sameSite: 'Strict' };

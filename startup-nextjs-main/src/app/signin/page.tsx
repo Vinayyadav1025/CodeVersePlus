@@ -1,14 +1,74 @@
+"use client"; // Add this line
+
 import Link from "next/link";
+import {  useRouter } from "next/navigation"; // Import necessary hooks
+import { useState } from "react"; // Import useState
 
-import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Sign In Page | Free Next.js Template for Startup and SaaS",
-  description: "This is Sign In Page for Startup Nextjs Template",
-  // other metadata
-};
 
-const SigninPage = () => {
+
+
+const SigninPage: React.FC = () => {
+  const router = useRouter();
+  
+  const [state, setState] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = evt.target;
+    setState({
+      ...state,
+      [name]: value,
+    });
+  };
+  
+
+  const handleOnSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
+    evt.preventDefault();
+  
+    const { email, password } = state;
+    const data = { email, password };
+  
+    fetch("http://localhost:5001/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.error) {
+          
+          data = data.data
+          // Store tokens in localStorage
+          
+          localStorage.setItem("accessToken", data.accessToken);
+  
+          // Redirect logic
+          const id = sessionStorage.getItem("redirect");
+          sessionStorage.removeItem("redirect");
+          if (id) {
+            router.push(`/detailed-question?id=${id}`);
+          } else {
+            router.push(`/`);
+          }
+        } else {
+          console.log("SignIn failed. Please check your credentials.");
+        }
+      })
+      .catch((error) => {
+        console.error("SignIn Error:", error);
+      });
+  
+    // Clear form fields after submission
+    setState({ email: "", password: "" });
+  };
+  
+  
+
   return (
     <>
       <section className="relative z-10 overflow-hidden pb-16 pt-36 md:pb-20 lg:pb-28 lg:pt-[180px]">
@@ -80,7 +140,7 @@ const SigninPage = () => {
                   </p>
                   <span className="hidden h-[1px] w-full max-w-[70px] bg-body-color/50 sm:block"></span>
                 </div>
-                <form>
+                <form onSubmit={handleOnSubmit}>
                   <div className="mb-8">
                     <label
                       htmlFor="email"
@@ -92,6 +152,9 @@ const SigninPage = () => {
                       type="email"
                       name="email"
                       placeholder="Enter your Email"
+                      value={state.email}
+                      onChange={handleChange}
+                      required
                       className="border-stroke dark:text-body-color-dark dark:shadow-two w-full rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:focus:border-primary dark:focus:shadow-none"
                     />
                   </div>
@@ -106,6 +169,9 @@ const SigninPage = () => {
                       type="password"
                       name="password"
                       placeholder="Enter your Password"
+                      value={state.password}
+                      onChange={handleChange}
+                      required
                       className="border-stroke dark:text-body-color-dark dark:shadow-two w-full rounded-sm border bg-[#f8f8f8] px-6 py-3 text-base text-body-color outline-none transition-all duration-300 focus:border-primary dark:border-transparent dark:bg-[#2C303B] dark:focus:border-primary dark:focus:shadow-none"
                     />
                   </div>
@@ -158,6 +224,7 @@ const SigninPage = () => {
                     </button>
                   </div>
                 </form>
+
                 <p className="text-center text-base font-medium text-body-color">
                   Don’t you have an account?{" "}
                   <Link href="/signup" className="text-primary hover:underline">

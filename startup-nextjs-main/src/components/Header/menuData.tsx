@@ -81,7 +81,6 @@ const menuData: Menu[] = [
       {
         id: 48,
         title: "Test Page",
-        // Dynamic path here
         path: "/detailed-question", 
         newTab: false,
       },
@@ -93,6 +92,12 @@ const menuData: Menu[] = [
       },
       {
         id: 50,
+        title: "Sign out Page",
+        path: "/signout",
+        newTab: false,
+      },
+      {
+        id: 51,
         title: "Error Page",
         path: "/error",
         newTab: false,

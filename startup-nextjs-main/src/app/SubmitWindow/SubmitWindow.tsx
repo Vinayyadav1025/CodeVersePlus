@@ -70,7 +70,7 @@ const SubmitWindow = ({
                 </>
               ) : (
                 <>
-                  <h4 className="border-2 font-bold">Compilation Error:</h4>
+                  <h4 className="font-bold text-red-700">Compilation Error:</h4>
                   <pre className="border-2 p-4 rounded-md text-red-700">
                     {status || 'No details available'}
                   </pre>
