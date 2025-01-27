@@ -5,10 +5,13 @@ import React, {useState} from "react";
 import {  useRouter } from "next/navigation"; // Import necessary hooks
 import OtpInput from "react-otp-input";
 import { ClipLoader, PulseLoader} from "react-spinners";
-
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from "../../utils/store"
 
 const SignupPage = () => {
   const router = useRouter();
+  const isLoggedIn = useSelector((state: RootState) => state.login.isLoggedIn); // TypeScript ko type mil gaya
+  const dispatch = useDispatch();
 
   const [state, setState] = useState({
     name: "",
@@ -108,15 +111,21 @@ const SignupPage = () => {
             .then((data) => {
               if (!data.error) {
                 console.log("SignIn Success:", data);
-      
+                data = data.data;
+                console.log(data);;
+                
                 // Store tokens in localStorage after successful login
                 localStorage.setItem("accessToken", data.accessToken);
                 localStorage.setItem("refreshToken", data.refreshToken);
-      
+                //Change login status
+                dispatch({
+                  type: 'SET_LOGIN_STATUS',
+                  payload: !isLoggedIn,
+                });
                 // Redirect the user to the original page or dashboard/home page
                 // const redirectTo = searchParams.get("/") || "/";
                 // window.location.href = redirectTo; // Fallback to home page if 'from' is not available
-      
+                
                  const id = sessionStorage.getItem('redirect');
                  sessionStorage.removeItem('redirect');
                  if(id){

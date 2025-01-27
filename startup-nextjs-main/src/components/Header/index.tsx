@@ -8,33 +8,38 @@ import menuData from "./menuData";
 import { useRouter } from "next/navigation"; // Updated import
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../utils/store';
 
 const Header = () => {
   // Navbar toggle
   const [navbarOpen, setNavbarOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profileImage, setProfileImage] = useState('');
   const [dropdownOpen, ] = useState(false);
-  const [accessToken, setAccessToken] = useState(null);
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector((state: RootState) => state.login.isLoggedIn);
   
   const router = useRouter(); // Correctly initialized router
 
+  
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    setAccessToken(token);
-    setIsLoggedIn(true);  // Update logged in state based on token
-    if (token) {
-      // Fetch the profile image from localStorage or an API
-      const savedProfileImage = localStorage.getItem('profileImage');
-      setProfileImage(savedProfileImage || ''); // Use default or saved profile image
+    console.log(token);
+    if(token){
+      dispatch({
+        type: 'SET_LOGIN_STATUS',
+        payload: !isLoggedIn,
+      });
     }
+    const storedProfileImage = localStorage.getItem('profileImage');
+    setProfileImage(storedProfileImage || '');
   }, []);
-
-
+  
+  
   const navbarToggleHandler = () => {
     setNavbarOpen(!navbarOpen);
   };
-
+  
   // Sticky Navbar
   const [sticky, setSticky] = useState(false);
   const handleStickyNavbar = () => {
@@ -44,14 +49,14 @@ const Header = () => {
       setSticky(false);
     }
   };
-
+  
   useEffect(() => {
     window.addEventListener("scroll", handleStickyNavbar);
     return () => {
       window.removeEventListener("scroll", handleStickyNavbar);
     };
   }, []);
-
+  
   // Submenu handler
   const [openIndex, setOpenIndex] = useState(-1);
   const handleSubmenu = (index) => {
@@ -61,31 +66,19 @@ const Header = () => {
       setOpenIndex(index);
     }
   };
-
+  
   const usePathName = usePathname();
+  
   
 
   const handleLogout = async () => {
     
-    
-    
-  
-    try {
-      // Assuming accessToken is stored in localStorage or sessionStorage
-      // If there's no accessToken, we don't need to proceed with logout
-      if (!accessToken) {
-        console.log('No access token found, skipping logout');
-        return;
-      }
-  
-      
-  
       const response = await fetch('http://localhost:5001/api/auth/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           // Add the necessary authentication header (Bearer token)
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
         credentials: 'include', // For including cookies if necessary
       });
@@ -98,29 +91,18 @@ const Header = () => {
       // Remove data from localStorage
       // Clear the localStorage and state on successful logout
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('profileImage');
-      setAccessToken(null);
-      setProfileImage('');
-      setIsLoggedIn(false);
-  
+      dispatch({
+        type: 'SET_LOGIN_STATUS',
+        payload: !isLoggedIn,
+      });
       
-  
       // Redirect to the sign-in page
       router.push("/signin");
-  
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Handle any errors that occur during the logout process
-    }
-  };
-  
-  const toggleDropdown = () => {
-    ((prev) => !prev);
-  };
-
-  const closeDropdown = () => {
-    (false);
-  };
+      
+    };
+    
   return (
     <>
       <header
@@ -248,57 +230,59 @@ const Header = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   {isLoggedIn  ? (
+                      <div className="relative group">
+                        {/* Profile Image or Human Icon */}
+                        {profileImage ? (
+                          <img
+                            src={profileImage}
+                            alt="Profile"
+                            width={40}
+                            height={40}
+                            className=" rounded-full bg-white transition-opacity duration-300 opacity-100"
+                          />
+                        ) : (
+                          <div className=" h-10 w-10 rounded-full bg-gray-300 flex justify-center items-center">
+                            {/* Human Icon (FontAwesome) */}
+                            <FontAwesomeIcon
+                              icon={faUser}
+                              className="text-dark h-6 w-6"
+                            />
+                          </div>
+                        )}
+  
+                        {/* Dropdown Menu */}
+                        <div className="">
+  
+                        <div className="dark:bg-gray-800
+                         absolute left-0 top-full mt-1 w-48 shadow-lg rounded-lg opacity-0 group-hover:opacity-100 group-hover:visible transition-opacity duration-200 invisible"
+                         >
+                          <Link
+                            href="/profile"
+                            className="block rounded py-2.5 text-sm text-dark hover:text-primary dark:text-white/50 dark:hover:text-white lg:px-3"
+                          >
+                            View Profile
+                          </Link>
+                          <button
+                            onClick={() => {
+                              handleLogout();
+                            }}
+                            className="block w-full rounded py-2.5 text-sm text-left text-dark hover:text-primary dark:text-white/70 dark:hover:text-white lg:px-3"
+                          >
+                            Sign Out
+                          </button>
+                        </div>
+                        </div>
+                      </div>
+  
+                    
+                    
+                  ) : (
                     <Link
                       href="/signin"
                       className="px-7 py-3 text-base font-medium text-dark hover:opacity-70 dark:text-white md:block"
                     >
                       Sign In
                     </Link>
-                  ) : (
-                    <div className="relative group">
-                      {/* Profile Image or Human Icon */}
-                      {profileImage ? (
-                        <Image
-                          src={profileImage}
-                          alt="Profile"
-                          width={40}
-                          height={40}
-                          className=" rounded-full bg-white transition-opacity duration-300 opacity-100"
-                        />
-                      ) : (
-                        <div className=" h-10 w-10 rounded-full bg-gray-300 flex justify-center items-center">
-                          {/* Human Icon (FontAwesome) */}
-                          <FontAwesomeIcon
-                            icon={faUser}
-                            className="text-dark h-6 w-6"
-                          />
-                        </div>
-                      )}
-
-                      {/* Dropdown Menu */}
-                      <div className="">
-
-                      <div className="dark:bg-gray-800
-                       absolute left-0 top-full mt-1 w-48 shadow-lg rounded-lg opacity-0 group-hover:opacity-100 group-hover:visible transition-opacity duration-200 invisible"
-                       >
-                        <Link
-                          href="/profile"
-                          className="block rounded py-2.5 text-sm text-dark hover:text-primary dark:text-white/50 dark:hover:text-white lg:px-3"
-                        >
-                          View Profile
-                        </Link>
-                        <button
-                          onClick={() => {
-                            handleLogout();
-                          }}
-                          className="block w-full rounded py-2.5 text-sm text-left text-dark hover:text-primary dark:text-white/70 dark:hover:text-white lg:px-3"
-                        >
-                          Sign Out
-                        </button>
-                      </div>
-                      </div>
-                    </div>
-
                   )}
                 </div>
 

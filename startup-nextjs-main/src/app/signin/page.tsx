@@ -3,13 +3,16 @@
 import Link from "next/link";
 import {  useRouter } from "next/navigation"; // Import necessary hooks
 import { useState } from "react"; // Import useState
-
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from "../../utils/store"
 
 
 
 
 const SigninPage: React.FC = () => {
   const router = useRouter();
+  const isLoggedIn = useSelector((state: RootState) => state.login.isLoggedIn); // TypeScript ko type mil gaya
+  const dispatch = useDispatch();
   
   const [state, setState] = useState({
     email: "",
@@ -46,7 +49,12 @@ const SigninPage: React.FC = () => {
           // Store tokens in localStorage
           
           localStorage.setItem("accessToken", data.accessToken);
-  
+          localStorage.setItem("refreshToken", data.refreshToken);
+          //Change login status
+          dispatch({
+            type: 'SET_LOGIN_STATUS',
+            payload: !isLoggedIn,
+          });
           // Redirect logic
           const id = sessionStorage.getItem("redirect");
           sessionStorage.removeItem("redirect");
