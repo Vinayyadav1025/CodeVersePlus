@@ -3,45 +3,46 @@ import { Blog } from "@/types/blog";
 const blogData: Blog[] = [
   {
     id: 1,
-    title: "Best UI components for modern websites",
+    title: "Enhancing Competitive Programming Skills with AI",
     paragraph:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sit amet dictum neque, laoreet dolor.",
+      "Explore how our AI-powered platform helps improve competitive programming skills by offering personalized challenges, real-time feedback, and in-depth problem-solving strategies tailored to each user’s level.",
     image: "/images/blog/blog-01.jpg",
     author: {
-      name: "Samuyl Joshi",
+      name: "Vinay Yadav",
       image: "/images/blog/author-01.png",
-      designation: "Graphic Designer",
+      designation: "AI Engineer",
     },
-    tags: ["creative"],
-    publishDate: "2025",
+    tags: ["AI", "Competitive Programming", "Skill Enhancement"],
+    publishDate: "02/2025",
   },
   {
     id: 2,
-    title: "9 simple ways to improve your design skills",
+    title: "Solving Real-World Problems with AI in Code Optimization",
     paragraph:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sit amet dictum neque, laoreet dolor.",
+      "Learn how our AI system assists in optimizing code by analyzing patterns, detecting bugs, and suggesting improvements, ensuring faster problem-solving during coding competitions.",
     image: "/images/blog/blog-02.jpg",
     author: {
-      name: "Musharof Chy",
+      name: "Ram Sharma",
       image: "/images/blog/author-02.png",
-      designation: "Content Writer",
+      designation: "AI Specialist",
     },
-    tags: ["computer"],
-    publishDate: "2025",
+    tags: ["DSA + AI", "Code Optimization", "Problem Solving"],
+    publishDate: "02/2025",
   },
   {
     id: 3,
-    title: "Tips to quickly improve your coding speed.",
+    title: "Integrating AI in Competitive Programming Challenges",
     paragraph:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sit amet dictum neque, laoreet dolor.",
+      "Discover how AI is integrated into competitive programming challenges to provide real-time insights, adaptive difficulty levels, and smart problem recommendations based on your past performance.",
     image: "/images/blog/blog-03.jpg",
     author: {
-      name: "Lethium Deo",
+      name: "Abhishek Kumar",
       image: "/images/blog/author-03.png",
-      designation: "Graphic Designer",
+      designation: "Software Engineer",
     },
-    tags: ["design"],
-    publishDate: "2025",
+    tags: ["DSA", "Competitive Programming", "Integration"],
+    publishDate: "03/2025",
   },
 ];
+
 export default blogData;

@@ -13,8 +13,8 @@ const Video = () => {
     <section className="relative z-10 py-16 md:py-20 lg:py-28">
       <div className="container">
         <SectionTitle
-          title="We are ready to help"
-          paragraph="There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form."
+          title="AI-Powered Competitive Programming"
+          paragraph="Our platform helps you sharpen your coding skills with personalized challenges, real-time feedback, and expert solutions. Join a global community of coders today!"
           center
           mb="80px"
         />
@@ -54,7 +54,7 @@ const Video = () => {
         autoplay={true}
         start={true}
         isOpen={isOpen}
-        videoId="L61p2uyiMSo"
+        videoId="L61p2uyiMSo"  // Replace with your own video ID related to the platform
         onClose={() => setOpen(false)}
       />
 

@@ -92,7 +92,7 @@ const Editor: React.FC<EditorProps> = ({ question }) => {
     );
 
     try {
-      const response = await fetch('http://localhost:5000/execute', {
+      const response = await fetch('http://localhost:5003/execute', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ const Editor: React.FC<EditorProps> = ({ question }) => {
 
     try {
       setTotalTestCases(question.testCases.length);
-      const response = await fetch('http://localhost:5000/submit', {
+      const response = await fetch('http://localhost:5003/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
