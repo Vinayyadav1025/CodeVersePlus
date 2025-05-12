@@ -53,6 +53,7 @@ CodeVersePlus is a powerful AI-based competitive programming platform that assis
 ```bash
 git clone https://github.com/your-username/CodeVersePlus.git
 cd CodeVersePlus
+```
 
 ### 1. Installing and running process
 
