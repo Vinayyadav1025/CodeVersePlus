@@ -18,7 +18,6 @@ CodeVersePlus is a powerful AI-based competitive programming platform that assis
 
 ![User Dashboard](https://your-demo-image-url.com/demo3.png)
 
-You can also try the live demo here: **[Live Demo Link](https://your-live-url.com)**
 
 ---
 
@@ -34,7 +33,6 @@ You can also try the live demo here: **[Live Demo Link](https://your-live-url.co
 ###  Cloud & Scalability:
 - **AWS Amplify / EC2 / S3** for deployment & hosting
 - **Microservices Architecture** for modular development
-- **Load Balancing + Auto Scaling** for high performance
 
 ###  Performance Optimization:
 - Efficient API handling with caching strategies
@@ -47,7 +45,7 @@ You can also try the live demo here: **[Live Demo Link](https://your-live-url.co
 
 > Make sure you have the following installed:
 > - Node.js (v16+)
-> - Docker (for microservices)
+> - Docker (for microservices and code run)
 > - MongoDB or MongoDB Atlas
 > - Git
 
@@ -55,3 +53,9 @@ You can also try the live demo here: **[Live Demo Link](https://your-live-url.co
 ```bash
 git clone https://github.com/your-username/CodeVersePlus.git
 cd CodeVersePlus
+
+### 1. Installing and running process
+
+- **Go to frontend directory and run npm install. It will install all required dependencies.**
+- **Then run command npm run dev. It will run frontend application on localhost.**
+- **After running frontend, Go to backend directory and follow their readme file.**
