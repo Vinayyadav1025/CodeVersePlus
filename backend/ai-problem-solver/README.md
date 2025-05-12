@@ -23,3 +23,4 @@ This is like a microservice used in CodeVersePlus project
 
 - **Go to backend/ai-problem-solver directory and run npm install. It will install all required dependencies.**
 - **Then run command npm start. It will run AI Problem solver microservice.**
+- **Convert .env.example to .env file and put all required API keys and PORT.**
