@@ -1,32 +1,57 @@
-# CodeVersePlus
+# CodeVersePlus - AI-Powered Competitive Programming Platform
 
-It is a competitive programming platform like- leetcode, GeeksforGeeks etc.
+CodeVersePlus is a powerful AI-based competitive programming platform that assists users in solving Data Structures & Algorithms (DSA) problems efficiently. It leverages AI agents, modern web technologies, and a scalable microservices architecture to deliver performance-focused coding support.
 
-## Features:
-- **Multi-language Support**: Write code in multiple programming languages.
-- **Real-time Output**: Instantly see the results of your code execution.
-- **Syntax Highlighting**: Enhanced code readability with color-coded syntax.
-- **User-friendly Interface**: Intuitive design for seamless coding experience.
-- **Code run environment**: Using docker, we are running the code that provide scalibility to run the code.
+---
 
-## Installation:
+## Output
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/Vinayyadav1025/Code-Editor.git
-2. **Navigate to the project directory:
-   ```bash
-   cd Code-Editor
-3. **Install dependencies:
-   ```bash
-   npm install
-4. **Start the application:
-   ```bash
-   npm start
-5. **Access the editor:
-   Open your browser and navigate to
-   ```bash
-   http://localhost:3000
+### AI Problem Solver in Action
 
-## Contributing
-Contributions are welcome! Please fork this repository and submit a pull request for any enhancements or bug fixes.
+![AI Solving Problem](https://your-demo-image-url.com/demo1.gif)
+
+### Smart Code Suggestions
+
+![Code Optimization](https://your-demo-image-url.com/demo2.gif)
+
+### Scalable & Fast UI
+
+![User Dashboard](https://your-demo-image-url.com/demo3.png)
+
+You can also try the live demo here: **[Live Demo Link](https://your-live-url.com)**
+
+---
+
+## Tech Stack
+
+### Core Technologies:
+- ** AI Engine**: Google Gemini API (preferred), with fallback options.
+- ** Frontend**: React + TypeScript (Vite)
+- ** Backend**: Node.js + Express.js
+- ** Database**: MongoDB (Mongoose)
+- ** Dev Tools**: Docker, Postman, GitHub Actions (CI/CD)
+
+###  Cloud & Scalability:
+- **AWS Amplify / EC2 / S3** for deployment & hosting
+- **Microservices Architecture** for modular development
+- **Load Balancing + Auto Scaling** for high performance
+
+###  Performance Optimization:
+- Efficient API handling with caching strategies
+- Optimized MongoDB queries and indexing
+- Lightweight containerization using Docker
+
+---
+
+##  Installation & Local Setup
+
+> Make sure you have the following installed:
+> - Node.js (v16+)
+> - Docker (for microservices)
+> - MongoDB or MongoDB Atlas
+> - Git
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/CodeVersePlus.git
+cd CodeVersePlus
