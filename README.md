@@ -8,15 +8,15 @@ CodeVersePlus is a powerful AI-based competitive programming platform that assis
 
 ### AI Problem Solver in Action
 
-![AI Solving Problem](https://your-demo-image-url.com/demo1.gif)
+![AI Solving Problem]([https://your-demo-image-url.com/demo1.gif](https://github.com/Vinayyadav1025/CodeVersePlus/blob/main/Image5.png))
 
 ### Smart Code Suggestions
 
-![Code Optimization](https://your-demo-image-url.com/demo2.gif)
+![Code Optimization]([https://your-demo-image-url.com/demo2.gif](https://github.com/Vinayyadav1025/CodeVersePlus/blob/main/Image4.png))
 
 ### Scalable & Fast UI
 
-![User Dashboard](https://your-demo-image-url.com/demo3.png)
+![User Dashboard]([https://your-demo-image-url.com/demo3.png](https://github.com/Vinayyadav1025/CodeVersePlus/blob/main/Image1.png))
 
 
 ---
