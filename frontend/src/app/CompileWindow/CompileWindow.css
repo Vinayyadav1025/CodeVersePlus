@@ -1,0 +1,140 @@
+/* Overlay background for CompileWindow */
+.compile-window-overlay {
+  position: fixed;
+  top: 5px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  z-index: 1000; /* Ensure it's on top */
+  transition: all 0.3s ease-out;
+}
+
+/* CompileWindow container */
+.compile-window {
+  background-color: rgb(90, 107, 201);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(70, 98, 150, 0.2);
+  overflow-y: auto; /* Scrollable content if it exceeds height */
+  position: relative;
+  z-index: 1001; /* Ensure it appears above the overlay */
+  pointer-events: auto; /* Enable interaction with the window */
+  width: 90%;
+  max-width: 800px; /* Restrict maximum width */
+  height: 80%; /* Increased height to fit input and output */
+  max-height: 90%;
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+/* Header styles */
+.compile-window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+/* Close button styles */
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+/* CompileWindow body */
+.compile-window-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between sections */
+  overflow-y: auto;
+  height: calc(100% - 77px); /* Adjust for header height */
+}
+
+/* Input Section */
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px; /* Spacing between input and label */
+}
+
+.input-section textarea {
+  width: 97%;
+  height: 100px; /* Fixed height for input */
+  resize: none;
+  font-family: monospace;
+  font-size: 14px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Output Section */
+.output {
+  white-space: pre-wrap; /* Preserve formatting */
+  /* background: #f4f4f4; */
+  padding: 10px;
+  border-radius: 5px;
+  font-family: monospace;
+  overflow-x: auto; /* Horizontal scrolling for long lines */
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* Button styles */
+.compile-window-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px; /* Spacing between buttons */
+}
+
+.compile-window-buttons button {
+  flex: 1; /* Make buttons equal width */
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.compile-window-buttons .custom-input {
+  background-color: #4caf50;
+  color: white;
+}
+
+.compile-window-buttons .run {
+  background-color: #2196f3;
+  color: white;
+}
+
+.compile-window-buttons .submit {
+  background-color: #f44336;
+  color: white;
+}
+
+.compile-window-buttons button:hover {
+  opacity: 0.9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .compile-window {
+    width: 95%;
+    height: 85%;
+  }
+}
