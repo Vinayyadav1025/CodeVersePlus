@@ -2,24 +2,6 @@
 
 CodeVersePlus is a powerful AI-based competitive programming platform that assists users in solving Data Structures & Algorithms (DSA) problems efficiently. It leverages AI agents, modern web technologies, and a scalable microservices architecture to deliver performance-focused coding support.
 
----
-
-## Output
-
-### AI Problem Solver in Action
-
-![AI Solving Problem]([https://your-demo-image-url.com/demo1.gif](https://github.com/Vinayyadav1025/CodeVersePlus/blob/main/Image5.png))
-
-### Smart Code Suggestions
-
-![Code Optimization]([https://your-demo-image-url.com/demo2.gif](https://github.com/Vinayyadav1025/CodeVersePlus/blob/main/Image4.png))
-
-### Scalable & Fast UI
-
-![User Dashboard]([https://your-demo-image-url.com/demo3.png](https://github.com/Vinayyadav1025/CodeVersePlus/blob/main/Image1.png))
-
-
----
 
 ## Tech Stack
 
