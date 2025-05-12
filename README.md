@@ -55,7 +55,7 @@ git clone https://github.com/your-username/CodeVersePlus.git
 cd CodeVersePlus
 ```
 
-### 1. Installing and running process
+### 2. Installing and running process
 
 - **Go to frontend directory and run npm install. It will install all required dependencies.**
 - **Then run command npm run dev. It will run frontend application on localhost.**
